@@ -1,0 +1,58 @@
+<mashup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openmashup.org/schemas/v1.0/EMML/../schemas/EMMLSpec.xsd"
+        xmlns="http://www.openmashup.org/schemas/v1.0/EMML"
+    name="SubqueryRAQLSample2">
+
+            <emml-meta name="author">Ivan Lazarte(ivan.lazarte@jackbe.com)</emml-meta>
+
+            <output name="result" type="document" />
+
+                <variables>
+                        <variable name="dataset" type="document">
+                        <records>
+                        <record>
+                              <symbol>JKBE</symbol>
+                              <date>2015</date>
+                              <adj_close>40.0</adj_close>
+                          </record>
+                          <record>
+                              <symbol>JKBE</symbol>
+                              <date>2016</date>
+                              <adj_close>20.0</adj_close>
+                          </record>
+                          <record>
+                              <symbol>JKBE</symbol>
+                              <date>2017</date>
+                              <adj_close>45.0</adj_close>
+                          </record>
+                          <record>
+                              <symbol>JKBE</symbol>
+                              <date>2018</date>
+                              <adj_close>85.0</adj_close>
+                          </record>
+                          <record>
+                              <symbol>JKBE</symbol>
+                              <date>2019</date>
+                              <adj_close>125.0</adj_close>
+                          </record>
+                          <record>
+                              <symbol>JKBE</symbol>
+                              <date>2020</date>
+                              <adj_close>94.0</adj_close>
+                          </record>
+                        </records>
+                        </variable>
+                </variables>
+						
+				<raql   outputvariable="$result">					
+					select  symbol, date, adj_close, prev_adj_close, growth_rate,
+                            avg(growth_rate) over (partition by symbol order by date(date,'yyyy')) as avg_return,
+                            gmean(growth_rate+1) over(partition by symbol order by date(date,'yyyy')) as cagr
+					from (
+					    select symbol, date, adj_close,
+                                    lag(adj_close) over (partition by symbol order by date(date,'yyyy')) as prev_adj_close,
+                                        ((adj_close - prev_adj_close) / nvl(prev_adj_close, adj_close) ) as growth_rate
+                        from   dataset
+                       order by date(date,'yyyy') )
+                </raql>
+</mashup>

@@ -1,0 +1,38 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro="http://www.openmashup.org/schemas/v1.0/EMMLMacro" 
+	xmlns:presto="http://www.jackbe.com/v1.0/EMMLPrestoExtensions"
+name='LoadCacheForAnalytics'>
+
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+  
+	<output name='result' type='document' />
+
+	<variable name="congress" type="document"/>
+
+    <directinvoke endpoint="http://bi.jackbe.com/data/legislators.xml" stream="true" outputvariable="congress" />
+
+
+    <variable name="rs1" type="document" stream="true" />    
+	<raql query="select * from congress/response/legislators/legislator" stream="true" outputvariable="rs1" />
+
+	<!-- Store RAQL result into presto configured cache -->
+	<variable name="myCacheKey" type="string" default="ck007" />	
+
+	<storeto key="$myCacheKey" variable="$rs1"/>
+
+
+
+    <!-- Load RAQL result from cache -->
+	<loadfrom key="$myCacheKey" variable="$cachedMembers"/>
+
+	<!-- Query using cachedMembers -->
+	<raql query= "select count(lastname) as cnt from cachedMembers " outputvariable="rs2"/>
+
+
+    <constructor outputvariable="result"> 
+     <result> data stored in cache with key {$myCacheKey} having record count # {$rs2//cnt/string()} </result> 
+    </constructor> 
+
+            
+</mashup>

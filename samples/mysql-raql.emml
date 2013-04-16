@@ -1,0 +1,25 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro="http://www.openmashup.org/schemas/v1.0/EMMLMacro" 
+	xmlns:presto="http://www.jackbe.com/v1.0/EMMLPrestoExtensions"
+name='AnalyticsMySql'>
+
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+  
+	<output name='result' type='document' >
+		<testdata/>
+	</output>
+
+    <datasource name="sakilaDB" driverclassname="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost:3306/sakila" username="root" password="jackbe" />
+
+	<sql 	name="sakilaDB" 
+			stream="true"
+			fetchsize="100"
+			query="select film_id, title, description, release_year, rental_duration, rental_rate, length, rating, special_features, last_update from film"
+			outputvariable="rs1" />
+
+	<raql query="select film_id, title, release_year, special_features, count(special_features) over (partition by special_features) 
+                    from rs1 
+                    order by special_features " outputvariable="result" />
+
+</mashup>

@@ -1,0 +1,9 @@
+{ 	
+	table: "linear_regression_1", 
+	record: '/records/record' , 
+	columns: [
+		{ name: 'index', 	type: 'decimal' }, 
+		{ name: 'BrainWeight', 	type: 'decimal' },     
+		{ name: 'BodyWeight', 	type: 'decimal' }
+	] 
+}

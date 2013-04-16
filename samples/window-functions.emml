@@ -1,0 +1,84 @@
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='RAQLWindowFunctions'>
+  
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+    <input name="qry" type="string" default="1"/>
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="document" datafile="stocks.xml" stream="true" />
+
+    <raql outputvariable="rs1">
+        select symbol, year(date) as yr, max(open) as m_open, max(volume) as m_volume
+        from stocks
+        where symbol = 'AAPL'
+        group by year(date)
+        order by year(date)
+    </raql>
+
+    <!-- rank -->
+    <raql condition="$qry = '1'" outputvariable="result">
+    	select symbol, yr, m_volume , rank(m_volume) over ( order by m_volume desc ) as volume_rank
+				from rs1
+    </raql>
+
+    <!-- dense rank -->
+    <raql condition="$qry = '2'" outputvariable="result">
+    	select symbol, yr, m_volume , denserank(m_volume) over ( order by m_volume desc ) as volume_rank
+				from rs1
+    </raql>
+
+    <!-- lag function -->
+    <raql condition="$qry = '3'" outputvariable="result">
+    	select symbol, yr, m_volume , lag(m_volume) over ( ) as prev_m_volume
+				from rs1
+    </raql>
+
+    <!-- lag function, with +1 offsets  -->
+    <raql condition="$qry = '4'" outputvariable="result">
+    	select symbol, yr, m_volume , lag(m_volume, 3) over ( ) as prev_3m_volume
+				from rs1
+    </raql>
+
+    <!-- lead function -->
+    <raql condition="$qry = '5'" outputvariable="result">
+    	select symbol, yr, m_volume , lead(m_volume) over ( ) as next_m_volume
+				from rs1
+    </raql>
+
+    <!-- lead function , with +1 offsets -->
+    <raql condition="$qry = '6'" outputvariable="result">
+    	select symbol, yr, m_volume , lead(m_volume, 3) over ( ) as next_3m_volume
+				from rs1
+    </raql>
+
+    <!-- rownumber()  -->
+    <raql condition="$qry = '7'" outputvariable="result">
+    	select rownumber() over () as rowno, symbol, yr, m_volume 
+				from rs1
+    </raql>
+
+    <!-- firstvalue()  -->
+    <raql condition="$qry = '8'" outputvariable="result">
+    	select symbol, yr, m_volume , firstvalue(m_volume) over () as first_m_volume
+				from rs1
+    </raql>
+
+    <!-- lastvalue ()  -->
+    <raql condition="$qry = '9'" outputvariable="result">
+    	select symbol, yr, m_volume , lastvalue(m_volume) over () as last_m_volume
+				from rs1
+    </raql>
+
+	<variable name="stocks2" type="file:stocks.schema" datafile="stocks.xml" stream="true" />
+    <raql condition="$qry = '10'" outputvariable="result">
+    	select symbol, date, volume , rank(volume) over ( partition by symbol order by volume desc ) as volume_rank
+				from stocks2
+    </raql>
+
+</mashup>

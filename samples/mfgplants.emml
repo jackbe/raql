@@ -1,0 +1,75 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro="http://www.openmashup.org/schemas/v1.0/EMMLMacro" 
+	xmlns:presto="http://www.jackbe.com/v1.0/EMMLPrestoExtensions"
+name='MfgPlantsStats'>
+
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+  
+	<input name="qry" type="string" default="1" />
+	<output name='result' type='document' />
+
+   	<variable name="mfgPlants" type="document" datafile="mfgplants.csv" stream="true" subType="csv" />
+
+
+	<!-- all production plants -->
+	<raql condition="$qry='1'" outputvariable="result">
+			select * from mfgPlants
+    </raql>
+
+	<!-- countries by most active production plants -->
+	<raql condition="$qry='2'" outputvariable="result">
+			select Country, sum(Active_Production_Lines) as cnt 
+		    from mfgPlants 
+		    group by Country 
+		    order by cnt desc
+    </raql>
+
+	<!-- countries by most production plants under construction -->
+	<raql condition="$qry='3'" outputvariable="result">
+		select Country, sum(Production_Lines_Under_Construction) as cnt 
+		from mfgPlants 
+		group by Country 
+		order by cnt desc 
+    </raql>
+
+	<!-- countries with atleast 1 shutdown production plant -->
+	<raql condition="$qry='4'" outputvariable="result">
+		select distinct Country 
+        from mfgPlants
+		where decimal(Shut_Down_Production_Lines) > 0 
+    </raql>
+
+	<raql condition="$qry='5'" outputvariable="result">
+			select Name, Active_Production_Lines  
+            from mfgPlants
+		    where Active_Production_Lines >= (select max(Active_Production_Lines) from mfgPlants )
+    </raql>
+
+
+	<!-- Geo cordinates of all production plants -->
+	<raql condition="$qry='6'" outputvariable="result">
+			select Name, split_part(Location, ',', '1') as lat, split_part(Location, ',', '2') as lon
+		    from mfgPlants
+		    where Country='UNITED STATES' and number(Shut_Down_Production_Lines) > 0 
+    </raql>
+
+	<!-- nearest production plants for a given geo location -->
+	<raql condition="$qry='7'" outputvariable="result" >
+			select Name, geo_distance('39.450943', '-123.806000', lat, lon ) as dist
+		    from (
+						select Name, split_part(Location, ',', '1') as lat, split_part(Location, ',', '2') as lon
+						from mfgPlants
+						where Country='UNITED STATES' and number(Active_Production_Lines) > 0 )
+            order by dist 
+    </raql>
+
+
+	<raql condition="$qry='8'" outputvariable="result">
+		select Name , matches(Name, 'OO') as match
+        from mfgPlants
+		where Name like '%OO%'
+    </raql>
+    
+
+</mashup>

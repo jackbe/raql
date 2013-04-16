@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	    xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='LegislatorQueries'>
+  
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<input name="qry" type="string" default="1"/>
+
+	<output name='result' type='document'/>
+
+	<variable name="rs1" type="document" />
+    <variable name="num1" type="number" default="30" />    
+    <variable name="sex" type="string" default="F"/>    
+
+
+	<variable name="congress" type="document"/>
+    <directinvoke endpoint="http://bi.jackbe.com/data/legislators.xml" stream="true" outputvariable="congress" />
+
+	<!-- select all columns -->
+	<raql condition="$qry = '0'" query="select * from congress" outputvariable="result" />
+
+	<!-- select columns -->
+	<raql condition="$qry = '1'" query="select firstname, lastname from congress" outputvariable="result" />
+
+	<!-- limit results -->
+	<raql condition= "$qry = '2'" query="select firstname, lastname from congress limit 5" outputvariable="result" />
+
+	<!-- select distinct records -->
+	<raql condition = "$qry = '3' " query="select distinct state from congress order by state" outputvariable="result" />
+
+	<!-- filter using where -->
+	<raql condition = "$qry = '4' " query="select count(firstname) as cnt from congress where gender= '{$sex}' order by state" outputvariable="result" />
+
+	<!-- logical filter expressions -->
+	<raql condition = "$qry = '5' " query= "select lastname from congress where gender = 'M' and chamber='senate'" outputvariable="result" />
+
+	<raql condition = "$qry = '6' " query= " select lastname from congress where gender = 'M' and chamber='senate' and party ='D' "
+		outputvariable="result" />
+
+	<!-- like search -->
+	<raql condition = "$qry = '7' " query= "select lastname from congress where lastname like 'R%' "
+	outputvariable="result" />
+
+	<!-- group aggregates -->
+	<raql condition = "$qry = '8' " query= " select count(lastname) as state_count, state from congress group by state order by state"
+	outputvariable="result" />
+
+	<!-- group by multi-columns -->
+	<raql condition = "$qry = '9' " query= " select count(lastname) as gender_cnt, gender, state from congress group by state, gender order by state"
+	outputvariable="result" />
+
+	<!-- running count of legislators by state -->
+	<raql condition = "$qry = '10' " query= " select lastname, state, count(lastname) over (partition by state ) as state_cnt  from congress order by state "
+	outputvariable="result" />
+
+	<!-- running count - by state, gender -->
+	<raql condition = "$qry = '11' " query= " select lastname, gender, state, count(lastname) over (partition by state ) as state_cnt, count(lastname) over (partition by state, gender)    as state_gender_cnt  from congress order by state "
+	outputvariable="result" />
+
+	<!-- composite filters -->
+	<raql condition = "$qry = '12' " query= " select lastname, chamber from congress where ( chamber != 'senate' ) and ( state = 'NV' )  " 
+	outputvariable="result" />
+
+	<!-- composite filters -->
+	<raql condition = "$qry = '13' " query= " select lastname , state from congress where ( chamber='senate' ) and ( (state = 'NV') or (state='UT') or (state = 'CA'  ) ) " 
+	outputvariable="result" />
+
+	<!-- data cast functions : number  -->
+	<raql condition = "$qry = '14' " query= " select lastname, chamber, state, district from congress where number(district) > {$num1} "
+	outputvariable="result" />
+
+	<!-- group aggregates & sort using functions -->
+	<raql condition = "$qry = '15' " query= " select count(lastname) as state_gender_cnt, gender, state, district from congress group by state, gender order by state desc, decimal(district) desc"
+	outputvariable="result" />
+
+	<!-- date functions -->
+	<raql condition = "$qry = '16' " query= " select lastname, birthdate, monthname(date(birthdate, 'yyyy-MM-dd')) as birth_mn from congress order by date(birthdate, 'yyyy-MM-dd') asc "
+	outputvariable="result" />
+
+    <!-- in clause with logical and -->
+	<raql condition="$qry = '17'" query="select state from congress where (chamber='senate') and ( ( state in ('TX', 'NY', 'CA', 'UT', 'AZ') ) ) " outputvariable="result" />
+
+	<raql condition="$qry = '18'" query="select chamber,district from congress where 1=1 and (chamber in ('house','senate') and district in ('24','4','Junior Seat'))" outputvariable="result" />
+
+    <!-- not operator -->
+	<raql condition="$qry = '19'" query="select gender, state from congress where not ( ( gender = 'M' ) and state in ( 'NY', 'TX', 'CA' ) ) " outputvariable="result" />
+</mashup>

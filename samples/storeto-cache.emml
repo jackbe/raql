@@ -1,0 +1,26 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro="http://www.openmashup.org/schemas/v1.0/EMMLMacro" 
+	xmlns:presto="http://www.jackbe.com/v1.0/EMMLPrestoExtensions"
+name='DataAnalyticsOnCachedData'>
+
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+    <input name="scope" type="string" default="global" />
+
+	<output name='result' type='string' default="Data stored in cache" />
+
+
+   	<variable name="congress" type="document" datafile="legislators.xml" stream="true" />
+
+    <variable name="congressData" type="document" stream="true" /> 
+
+	<raql query="select * from congress/response/legislators/legislator" stream="true" outputvariable="congressData" />
+
+	<!-- Store RAQL result in presto configured cache -->
+	<variable name="myCacheKey" type="string" default="ck007" />	
+
+	<storeto key="$myCacheKey" 
+             scope="$scope" variable="$congressData"/>
+
+    <!-- see loadto-cache.emml for loading from cache to appy raql query -->
+</mashup>

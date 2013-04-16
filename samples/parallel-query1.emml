@@ -1,0 +1,44 @@
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+
+<mashup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openmashup.org/schemas/v1.0/EMML/../schemas/EMMLSpec.xsd"
+        xmlns="http://www.openmashup.org/schemas/v1.0/EMML"
+ name="ParallelRAQLQueriesSample1">
+
+	    <emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+        <output name="qryResult" type="document"/>
+
+        <constructor outputvariable="queriesDoc">
+            <queries>
+                <query>select distinct gender from legislators order by gender </query>
+                <query>select distinct chamber from legislators order by chamber </query>
+                <query>select distinct state from legislators order by state </query>
+                <query>select distinct district from legislators order by district </query>
+                <query>select distinct  title from legislators order by title </query>
+            </queries>
+        </constructor>
+
+        <foreach variable="qry" items="$queriesDoc//query/string()" parallel="yes" tasks="InvokeAll" merge="false" >
+
+            <variable name="legislators" datafile="legislators.xml" stream="true" type="document"/>
+
+            <raql query="{$qry}" outputvariable="rs"/>
+
+            <fuse outputvariable="qryResult">
+                <resultset>{$rs}</resultset>
+            </fuse>
+        </foreach>
+
+        <display message="Fused result from all tasks = " expr="$qryResult"/>
+
+        <display message="qryResult1 = " expr="$qryResult1" /> 
+        <display message="qryResult2 = " expr="$qryResult2" /> 
+        <display message="qryResult3 = " expr="$qryResult3" /> 
+        <display message="qryResult4 = " expr="$qryResult4" /> 
+        <display message="qryResult5 = " expr="$qryResult5" /> 
+</mashup>
+
+

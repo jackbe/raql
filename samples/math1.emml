@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='BasicMathOp'>
+  
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<input name="qry" type="string" default="y"/>
+	<output name='result' type='document'/>
+
+    <variable name="stocksType" type="schema">
+		      define table stocks (
+			  	symbol text, 
+				date date,
+				open decimal, 
+				high decimal, 
+				low decimal, 
+				close decimal,
+				volume decimal, 
+				adjclose decimal) with options record='/records/record'
+    </variable>
+
+	<variable name="stocks" type="variable:stocksType" datafile="stocks.xml" stream="true" />
+	
+	<raql query=
+		"select symbol, open, close, (open + close) as expr1 , (open + close / 2) as expr2 , (open - close) as expr3,
+		( volume * .01 ) as expr4
+				from stocks " outputvariable="result" />
+
+
+</mashup>

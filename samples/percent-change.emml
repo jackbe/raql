@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:ns="http://purl.org/rss/1.0/"
+name='VolumePercentChange'>
+  
+	<emml-meta name="author">John Crupi(john.crupi@jackbe.com)</emml-meta>
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<input name="qry" type="string" default="1"/>
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="file:stocks.json" datafile="stocks.xml" stream="true" />
+				<!-- stocks.json contains table schema definition -->
+
+	<variable name="rs1" type="document" />	
+
+	<!-- quarter volume mean -->
+	<constructor outputvariable="query"> 
+		 <query> 
+			<![CDATA[
+					select year(date) as yr, quarter(date) as qt, decimal(mean(volume)) as this_qtr 
+					from stocks/records/record 
+					group by year(date), quarter(date) 
+					order by year(date), quarter(date) 
+			]]>
+		   </query> 
+	</constructor> 
+
+	<raql query="{$query//query}" outputvariable="qtrVolMean" />
+
+	<!-- calculate percent change for all quarters -->
+	<raql query="select yr, qt, this_qtr, lag(this_qtr) over () as prev_qtr, ((this_qtr - nvl(prev_qtr,this_qtr))/prev_qtr) * 100  as pct_change 
+                from qtrVolMean/records/record" 
+				outputvariable="qtrPercentChg" />
+
+	<!-- filter percent change >= 15 -->
+	<raql query="select  yr, qt, pct_change 
+                    from qtrPercentChg/records/record 
+                    where pct_change >= 15" 
+				outputvariable="result" />
+
+</mashup>

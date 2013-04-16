@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:ns="http://purl.org/rss/1.0/"
+name='CorrelateMonthlyCloseVolume2'>
+  
+	<emml-meta name="author">John Crupi(john.crupi@jackbe.com)</emml-meta>
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="file:stocks.json" datafile="stocks.xml" stream="true" />
+				<!-- stocks.json contains table schema definition -->
+
+	<!-- correlate close & volume monthly means for 3-months running -->
+	<raql outputvariable="result">
+			select yr, correlation(mon_close_mean, mon_volume_mean) over ( partition by yr rows between 1 preceding and 1 following ) as month3_corr 
+				from ( 
+					select year(date) as yr, month(date) as mn, mean(close) as mon_close_mean, mean(volume) as mon_volume_mean 
+						from stocks/records/record 
+							group by year(date), month(date)  
+								order by year(date), month(date) ) 
+				order by yr
+    </raql>
+
+</mashup>

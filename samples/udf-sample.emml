@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='RAQL-UDFSamples'>
+  
+	<emml-meta name="author">alexi.polenur@jackbe.com</emml-meta>
+
+	<input name="qry" type="string" default="a"/>
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="file:stocks.json" datafile="stocks.xml" stream="true" />
+				<!-- stocks.json contains table schema definition -->
+
+	<raql condition="$qry = 'a'" outputvariable="result">
+            select symbol, SampleRaqlLib.lower(symbol) as udf_lower 
+            from stocks/records/record 
+            group by symbol
+    </raql>
+
+	<raql condition="$qry = 'b'" outputvariable="result">
+            select symbol, SampleRaqlLib.capitalize(SampleRaqlLib.lower(symbol) ) as udf_cap_lower
+            from stocks/records/record 
+            group by symbol
+
+	</raql>
+	<raql condition="$qry = 'c'" outputvariable="result">
+    	select symbol, total_volume , SampleRaqlLib.myrank(total_volume) over ( order by total_volume ) as rank
+				from 
+					( 	select symbol, sum(volume) as total_volume 
+						from stocks 
+						group by symbol ) 
+	</raql>
+
+</mashup>

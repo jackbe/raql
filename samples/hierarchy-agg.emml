@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='StocksHierarchicalAggregation'>
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="file:stocks.json" datafile="stocks.xml" stream="true" />
+				<!-- stocks.json contains table schema definition -->
+	<variable name="monthAgg" type="document" />
+	<variable name="quarterAgg" type="document" />
+
+	<!-- Monthly aggregation -->
+	<raql outputvariable="monthAgg">
+        select symbol, date, year(date) as y, month(date) as m, sum(open) as mon_sum 
+        from stocks/records/record 
+        group by symbol, year(date), month(date) 
+        order by symbol, year(date), month(date)
+    </raql>
+
+	<!-- Quarterly Aggregation from Monthly Aggregation -->
+	<raql outputvariable="quarterAgg">
+        select symbol, date, y, m,  quarter(date) as qtr , mon_sum, sum(mon_sum)  over (partition by  symbol, year(date), 
+                quarter(date) ) as qtr_sum 
+        from monthAgg
+    </raql>
+
+	<!-- Yearly Aggregation from Quarterly Aggregation -->
+	<raql outputvariable="result">
+        select symbol, date, y, m,  mon_sum, qtr, qtr_sum,  sum(qtr_sum)  over (partition by  symbol, year(date) ) as yr_sum 
+        from quarterAgg
+    </raql>
+				
+</mashup>
