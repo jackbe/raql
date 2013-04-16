@@ -1,0 +1,11 @@
+define dataset stocks ( 
+    symbol string, 
+    date datetime, 
+    open decimal, 
+    high decimal,
+    low decimal, 
+    close decimal, 
+    volume decimal, 
+    adjclose decimal) 
+with options 
+    record='/records/record'

@@ -1,0 +1,16 @@
+{ 	
+	table: "stocks", 
+	record: '/records/record' , 
+	columns: [
+		{ name: 'symbol', 	type: 'string' }, 
+		{ name: 'date', 	type: 'datetime', format: '' },     
+		{ name: 'open', 	type: 'decimal' }, 
+		{ name: 'high', 	type: 'decimal' },
+		{ name: 'low',  	type: 'decimal' },
+		{ name: 'close',  	type: 'decimal' },
+		{ name: 'volume',  	type: 'decimal' },
+		{ name: 'adjclose', type: 'decimal' },
+	] 
+}
+
+

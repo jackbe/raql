@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='StocksRunningMinimum'>
+  
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<input name="qry" type="string" default="y"/>
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="file:stocks.json" datafile="stocks.xml" stream="true" />
+				<!-- stocks.json contains table schema definition -->
+
+	<raql condition="$qry = 'y'" outputvariable="result" >
+		<!-- price min by stock, year -->
+		select symbol, date, open, min(open) over (partition by symbol, year(date) order by symbol, date) as year_run_min 
+        from stocks/records/record 
+        order by symbol 
+    </raql>
+
+	<raql condition="$qry = 'q'" outputvariable="result" >
+		<!-- price min by stock, year, quarter -->
+		select symbol, date, quarter(date) as qtr, open, min(open) over (partition by symbol, year(date), quarter(date) order by symbol, date) as qtr_run_min 
+        from stocks/records/record 
+        order by symbol 
+    </raql>
+
+	<raql condition="$qry = 'm'" outputvariable="result" >
+		<!-- price min by stock, year, month -->
+		select symbol, date, monthname(date) as mnth, open, min(open) over (partition by symbol, year(date), month(date) order by symbol, date) as mon_run_min 
+        from stocks/records/record 
+        order by symbol 
+    </raql>
+
+</mashup>

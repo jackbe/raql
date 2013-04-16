@@ -1,0 +1,24 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro="http://www.openmashup.org/schemas/v1.0/EMMLMacro" 
+	xmlns:presto="http://www.jackbe.com/v1.0/EMMLPrestoExtensions"
+name='DataAnalyticsOnCachedData'>
+
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+    <input name="scope" type="string" default="global" />
+	<output name='result' type='document' />
+
+    <!-- storeto-cache.emml stores data in cache, for this emml to read from cache 
+        and appy raql query on it -->
+
+	<variable name="myCacheKey" type="string" default="ck007" />	
+
+	<!-- Load cached dataset into variable cachedMembers -->
+	<loadfrom key="$myCacheKey" 
+          variable="$cachedMembers" scope="$scope" onerror="abort"/>
+
+	<!-- Query using cachedMembers -->
+	<raql query= "select lastname from cachedMembers where lastname like 'R%' " outputvariable="result"/>
+
+</mashup>

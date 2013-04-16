@@ -1,0 +1,32 @@
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='VolumePercentChangeSubquery'>
+  
+	<emml-meta name="author">John Crupi(john.crupi@jackbe.com)</emml-meta>
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<input name="qry" type="string" default="1"/>
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="file:stocks.schema" datafile="stocks.xml" stream="true" />
+				<!-- stocks.schema contains table schema definition -->
+
+	<!-- quarter volume mean percentage change >= 15 -->
+
+	<raql outputvariable="result"> 
+		 	select  yr, qt, pct_change 
+			from ( 
+				select yr, qt, this_qtr, lag(this_qtr) over () as prev_qtr, ( (this_qtr - prev_qtr)/nvl(prev_qtr, this_qtr) ) * 100  as pct_change 
+				from ( 
+					select year(date) as yr, quarter(date) as qt, decimal(mean(volume)) as this_qtr 
+					from stocks/records/record 
+					group by year(date), quarter(date) 
+					order by year(date), quarter(date) ) ) 
+			where pct_change >= 15
+	</raql> 
+
+</mashup>

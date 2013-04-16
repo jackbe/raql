@@ -1,0 +1,23 @@
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='RAQLCovarianceSample'>
+  
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<output name='result' type='document'/>
+
+	<variable name="stocks" type="document" datafile="stocks.xml" stream="true" />
+
+    <raql outputvariable="result">
+        select symbol, covariance(open, volume) as covar
+        from stocks 
+        group by symbol
+        order by symbol 
+    </raql>
+
+
+</mashup>

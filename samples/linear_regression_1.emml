@@ -1,0 +1,36 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' 
+	     xmlns='http://www.openmashup.org/schemas/v1.0/EMML' 
+		  xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+		  name='LinearRegression-Slope-Intercept-Interpolation'>
+  
+  <emml-meta name="author">Ivan Mejia(ivan.mejia@jackbe.com)</emml-meta>
+
+  <output name='result' type='document'/>
+
+  <variable name="linear_regression" type="file:linear_regression_1.json" datafile="linear_regression_1.xml" />
+
+    <raql outputvariable="slope">
+        select analytics.linear_regression_slope(BrainWeight,BodyWeight) as slope 
+        from linear_regression
+    </raql>
+
+    <raql outputvariable="intercept">
+        select analytics.linear_regression_intercept(BrainWeight,BodyWeight) as intercept 
+        from linear_regression
+    </raql>
+
+    <raql outputvariable="interpolate">
+        select BrainWeight, BodyWeight, analytics.linear_regression_interpolate(BrainWeight,BodyWeight) over() as interpolation 
+        from linear_regression
+    </raql>
+
+  <constructor outputvariable="result"> 
+    <result> 
+        {$slope//record/*}
+        {$intercept//record/*}
+        {$interpolate//record/*}
+    </result> 
+  </constructor> 
+        
+
+</mashup>

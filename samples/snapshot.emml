@@ -1,0 +1,21 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xsi:schemaLocation='http://www.openmashup.org/schemas/v1.0/EMML/../schemas/EMMLPrestoSpec.xsd'
+        xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+name='SnapshotAnalytics'>
+
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+  
+    <output name='result' type='document' />
+  
+    <input name="mysvc" type="string" default="CNNMoneyHeadlines" />                               
+
+    <variable name="snaps" type="document" />                                          
+
+    <snapshot name='snaps' 
+        query="select * from snapshots where service = :mysvc " />
+  
+    <raql query='select ss_ts, title,link,guid,description,pubDate,origLink,thumbnail.height,thumbnail.width,thumbnail.url 
+                    from snaps/rss/channel/item  '   
+            outputvariable='result'/>
+
+</mashup>

@@ -1,0 +1,27 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+  xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='KMeansClustering-Centroids'>
+  
+  <emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+  <output name='result' type='document'/>
+
+  <variable name="stocks" type="file:stocks.json" datafile="stocks.xml" />
+
+  <!-- k-means clustering centroids for 1 column, 5 clusters, 100 iterations, euclidean measure -->	
+  <raql query="
+	  select analytics.kmeans_clusters('open', 5, 100, 'euclidean') as centroid
+	  from stocks/records/record "
+	outputvariable="result" />
+
+	<!-- k-means clustering centroids for 3 columns, 5 clusters, 100 iterations, squaredeuclidean measure -->
+    <!--
+    <raql query="
+  	  select analytics.kmeans_clusters('open,close,volume', 5, 100, 'squaredeuclidean') as centroid 
+  	  from stocks/records/record 
+  	  order by symbol"
+  	outputvariable="result" />
+    -->
+
+</mashup>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This work is licensed under a Creative Commons Attribution-Share Alike 3.0 United States License. 
+	 See http://creativecommons.org/licenses/by-sa/3.0/us for the full text. -->
+
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+     xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+	xmlns:macro = "http://www.openmashup.org/schemas/v1.0/EMMLMacro"
+name='DateFmtSamplesRAQL'>
+  
+	<emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+	<output name='result' type='document'/>
+
+    <variable name="doc" type="document"> 
+         <records>
+             <record>
+                <symbol>YHOO</symbol>
+                <dt>2013-01-05T09:33:59-05:00</dt>
+                <dt2>2012-02-30 09:53:09.0</dt2>
+                <volume>302400</volume>
+             </record>
+             <record>
+                <symbol>YHOO</symbol>
+                <dt>2013-03-05T09:33:59-05:00</dt>
+                <dt2>2012-06-30 09:53:09.0</dt2>
+                <volume>302400</volume>
+             </record>
+         </records>
+    </variable>
+
+        <raql outputvariable="result"> 
+            select  date(dt, "yyyy-MM-dd'T'HH:mm:ssX") as dt,
+                    date(dt2, "yyyy-MM-dd HH:mm:ss.SSS") as dt2 
+            from doc
+        </raql> 
+
+</mashup>
