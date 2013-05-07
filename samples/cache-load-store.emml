@@ -1,0 +1,37 @@
+<mashup xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.openmashup.org/schemas/v1.0/EMML'
+    xmlns:macro="http://www.openmashup.org/schemas/v1.0/EMMLMacro" 
+    xmlns:presto="http://www.jackbe.com/v1.0/EMMLPrestoExtensions"
+name='CacheLoadStore'>
+
+  <emml-meta name="author">Raj Krishnamurthy(raj@jackbe.com)</emml-meta>
+
+  <output name='result' type='document' />
+
+  <variable name="cachedMembers" type="document" />
+  <variable name="mykey" type="string" default="yellowstone" />
+  
+  <try>
+    <loadfrom key="$mykey"  variable="$cachedMembers"/>
+
+    <catch type="EMMLException e">
+      <display message="Loading Data into cache " />
+      <!-- load data -->  
+      <variable name="congress" type="document" datafile="legislators.xml" stream="true" />
+
+      <variable name="congressData" type="document" stream="true" /> 
+
+      <raql query="select * from congress/response/legislators/legislator" stream="true" outputvariable="congressData" />
+
+
+      <storeto key="$mykey"  variable="$congressData"/>   
+
+      <loadfrom key="$mykey"  variable="$cachedMembers" onerror="abort"/>
+    
+    
+    </catch>  
+  </try>
+    
+  <raql query= "select lastname from cachedMembers where lastname like 'R%' " outputvariable="result"/>
+    
+</mashup>
